@@ -706,11 +706,11 @@ const MENU = [
   {n:'Es Kopi',        c:'kopi',     i:'🧊', t:'Dingin',    d:'Kopi dingin penuh es, penyegar siang Bangkalan.'},
   {n:'Mie Goreng',     c:'makanan',  i:'🍜', t:'Best Seller', d:'Digoreng panas dengan bumbu warkop. Bisa ditambah telur.'},
   {n:'Mie Rebus',      c:'makanan',  i:'🍲', t:'Hangat',    d:'Kuah gurih mengepul, pas untuk malam yang dingin.'},
-  {n:'Roti Bakar',     c:'makanan',  i:'🍞', t:'Camilan',   d:'Renyah di luar, lembut di dalam. Cokelat atau srikaya.'},
   {n:'Gorengan',       c:'makanan',  i:'🥟', t:'Teman Kopi',d:'Hangat dari wajan, sahabat sejati secangkir kopi.'},
   {n:'Teh Manis / Tawar', c:'lain',  i:'🍵', t:'Ringan',    d:'Panas atau dingin, untuk yang lagi puasa kafein.'},
   {n:'Jeruk Panas / Es', c:'lain',   i:'🍊', t:'Segar',     d:'Asam segar, bikin tenggorokan lega.'},
-  {n:'Susu Jahe',      c:'lain',     i:'🫚', t:'Anget',     d:'Hangat di badan, cocok saat angin malam kencang.'},
+  {n:'Wedang Jahe',    c:'lain',     i:'🫚', t:'Anget',     d:'Jahe segar diseduh panas. Pedasnya alami, bikin badan hangat.'},
+  {n:'Susu Jahe',      c:'lain',     i:'🥛', t:'Manis',     d:'Jahe dicampur susu. Hangat di badan, lembut di lidah.'},
   {n:'Air Mineral',    c:'lain',     i:'💧', t:'Basic',     d:'Selalu tersedia, dingin maupun suhu ruang.'},
 ];
 
@@ -789,19 +789,36 @@ function qty(v){
   el.value=Math.max(1,Math.min(99,(+el.value||1)+v));
   updPreview();
 }
+/* Pesan sengaja pakai teks polos ASCII saja — tanpa emoji dan tanpa
+   karakter khusus. Sebagian WhatsApp (terutama versi web/desktop lama)
+   merusak karakter di luar ASCII saat dikirim lewat link wa.me,
+   sehingga muncul tanda tanya. Tanda bintang = teks tebal di WhatsApp. */
 function buildMsg(){
-  const nama=document.getElementById('fNama').value.trim()||'—';
+  const nama=document.getElementById('fNama').value.trim()||'-';
   const menu=document.getElementById('fMenu').value;
   const q=document.getElementById('fQty').value;
   const tipe=document.getElementById('fTipe').value;
   const note=document.getElementById('fNote').value.trim();
-  let s='Halo Warkop Kepank! 👋\n\n';
-  s+='Nama  : '+nama+'\n';
-  s+='Pesan : '+menu+' ('+q+'x)\n';
-  s+='Tipe  : '+tipe+'\n';
-  if(note) s+='Catatan: '+note+'\n';
-  s+='\nDitunggu ya, Bos. Terima kasih! ☕';
-  return s;
+  let s='Halo Warkop Kepank!\n\n';
+  s+='*PESANAN*\n';
+  s+='Nama    : '+nama+'\n';
+  s+='Menu    : '+menu+'\n';
+  s+='Jumlah  : '+q+'\n';
+  s+='Tipe    : '+tipe+'\n';
+  if(note) s+='Catatan : '+note+'\n';
+  s+='\nDitunggu ya, Bos. Terima kasih!';
+  return ascii(s);
+}
+/* Jaring pengaman: buang karakter non-ASCII yang mungkin ikut
+   terbawa dari nama menu atau catatan yang diketik pelanggan. */
+function ascii(t){
+  return t
+    .replace(/[‘’]/g,"'")      // kutip miring
+    .replace(/[“”]/g,'"')
+    .replace(/[–—]/g,'-')      // en/em dash
+    .replace(/…/g,'...')
+    .replace(/·/g,'-')              // titik tengah
+    .replace(/[^\x00-\x7F]/g,'');        // sisanya (emoji dll) dibuang
 }
 function updPreview(){
   const msg=buildMsg();
